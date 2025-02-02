@@ -11,12 +11,14 @@
     <h1>Banking Chatbot</h1>
     <!-- Chat log where messages appear -->
     <div id="chat-log"></div>
+    
     <!-- Text input for user messages -->
     <input
       type="text"
       id="user-input"
       placeholder="Type your message here or use voice input..."
     />
+    
     <!-- Buttons for sending text and controlling voice input -->
     <button id="send-btn">Send</button>
     <button id="start-voice">Start Voice</button>
@@ -27,9 +29,8 @@
   <script>
     /**
      * Unlock audio for iOS Safari on the first touch.
-     * iOS often blocks audio (including speech synthesis) until
-     * there's a direct user gesture. This code plays an empty
-     * utterance to "unlock" audio for future speak() calls.
+     * This is necessary because iOS often blocks audio 
+     * (including speech synthesis) until there’s a direct user gesture.
      */
     function unlockAudioForiOS() {
       if (window.speechSynthesis) {
@@ -40,11 +41,11 @@
       window.removeEventListener('touchstart', unlockAudioForiOS);
     }
 
-    // Listen for the first touchstart to unlock audio
+    // Listen for the first 'touchstart' event to unlock audio
     window.addEventListener('touchstart', unlockAudioForiOS, { once: true });
   </script>
 
-  <!-- Your main front-end logic -->
+  <!-- Main front-end logic (speech recognition, text input, etc.) -->
   <script src="app.js"></script>
 </body>
 </html>
