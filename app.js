@@ -1,6 +1,4 @@
-// ----------------- Text Chat Functionality -----------------
-
-// Function to display messages in the chat log
+// Function to display a message in the chat log
 function displayMessage(sender, text) {
   const chatLog = document.getElementById('chat-log');
   const messageEl = document.createElement('p');
@@ -10,7 +8,7 @@ function displayMessage(sender, text) {
   chatLog.scrollTop = chatLog.scrollHeight;
 }
 
-// Function to send a message to your ChatGPT endpoint
+// Function to send the user's message to your serverless ChatGPT endpoint
 async function sendMessageToChatGPT(userMessage) {
   try {
     const response = await fetch('https://agentic-bank.vercel.app/api/chat', {
@@ -18,10 +16,26 @@ async function sendMessageToChatGPT(userMessage) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: userMessage })
     });
+
+    // Log the raw response status for debugging
     console.log('Response status:', response.status);
+
+    // If the response is not OK, log and throw an error to trigger the catch block
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error data from server:', errorData);
+      throw new Error('Server returned an error');
+    }
+
     const data = await response.json();
     console.log('Response data:', data);
-    const reply = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+
+    // Extract the assistant's reply from the API response
+    const reply =
+      data.choices &&
+      data.choices[0] &&
+      data.choices[0].message &&
+      data.choices[0].message.content;
     return reply || "No reply received.";
   } catch (error) {
     console.error('Error processing request:', error);
@@ -49,19 +63,16 @@ window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecogn
 if (!window.SpeechRecognition) {
   alert("Your browser does not support the Web Speech API. Please try Chrome or Edge.");
 } else {
-  // Create a new SpeechRecognition instance
   const recognition = new window.SpeechRecognition();
   recognition.interimResults = true;
   recognition.lang = 'en-US';
   
   let finalTranscript = '';
 
-  // Log when speech recognition starts
   recognition.addEventListener('start', () => {
     console.log("Speech recognition started");
   });
 
-  // Log and process speech recognition results
   recognition.addEventListener('result', event => {
     console.log('Speech recognition result event fired');
     let interimTranscript = '';
@@ -77,25 +88,21 @@ if (!window.SpeechRecognition) {
     document.getElementById('user-input').value = finalTranscript + interimTranscript;
   });
 
-  // Log when speech recognition ends
   recognition.addEventListener('end', () => {
     console.log("Speech recognition ended");
-    // Re-enable buttons after recognition stops
     document.getElementById('start-voice').disabled = false;
     document.getElementById('stop-voice').disabled = true;
   });
 
-  // Start voice recognition when the "Start Voice" button is clicked
   document.getElementById('start-voice').addEventListener('click', () => {
     console.log("Start Voice button clicked");
-    finalTranscript = ''; // Reset the transcript
+    finalTranscript = ''; // Reset transcript
     document.getElementById('user-input').value = '';
     recognition.start();
     document.getElementById('start-voice').disabled = true;
     document.getElementById('stop-voice').disabled = false;
   });
 
-  // Stop voice recognition when the "Stop Voice" button is clicked
   document.getElementById('stop-voice').addEventListener('click', () => {
     console.log("Stop Voice button clicked");
     recognition.stop();
