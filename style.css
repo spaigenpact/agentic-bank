@@ -1,0 +1,52 @@
+/* Base styles for readability */
+body {
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+  margin: 0;
+  padding: 20px;
+}
+
+/* Container to center content and add padding */
+.container {
+  max-width: 600px;
+  width: 90%; /* Ensures it looks good on mobile devices */
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Headings centered for both desktop and mobile */
+h1, h2 {
+  text-align: center;
+}
+
+/* Styling for transcript and action panels */
+#transcript, #next-action {
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 4px;
+  background: #fafafa;
+}
+
+/* Controls centered and button styling */
+.controls {
+  text-align: center;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* Responsive adjustments for smaller devices */
+@media (max-width: 480px) {
+  button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
