@@ -125,3 +125,6 @@ if (!window.SpeechRecognition) {
     document.getElementById('stop-voice').disabled = true;
   });
 }
+
+// Attach speakText to the global window object for console testing
+window.speakText = speakText;
