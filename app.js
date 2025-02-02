@@ -10,9 +10,16 @@ function displayMessage(sender, text) {
 
 // Function to speak a given text using SpeechSynthesis
 function speakText(text) {
+  console.log("speakText called with:", text);
+  if (!text || text.trim() === "") {
+    console.warn("No text provided to speak.");
+    return;
+  }
   if ('speechSynthesis' in window) {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'en-US'; // Adjust language as needed
+    utterance.onstart = () => console.log("Speech started.");
+    utterance.onend = () => console.log("Speech ended.");
     window.speechSynthesis.speak(utterance);
   } else {
     console.warn('Speech synthesis is not supported in this browser.');
@@ -28,7 +35,6 @@ async function sendMessageToChatGPT(userMessage) {
       body: JSON.stringify({ message: userMessage })
     });
 
-    // Log the raw response status for debugging
     console.log('Response status:', response.status);
 
     if (!response.ok) {
@@ -40,7 +46,6 @@ async function sendMessageToChatGPT(userMessage) {
     const data = await response.json();
     console.log('Response data:', data);
 
-    // Extract the assistant's reply from the API response
     const reply =
       data.choices &&
       data.choices[0] &&
@@ -64,13 +69,12 @@ document.getElementById('send-btn').addEventListener('click', async () => {
 
   const reply = await sendMessageToChatGPT(userMessage);
   displayMessage('Assistant', reply);
-  // Speak the assistant's reply
   speakText(reply);
 });
 
 // ----------------- Voice Recognition Functionality -----------------
 
-// Check if the browser supports the Web Speech API for speech recognition
+// Check if the browser supports the Web Speech API
 window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (!window.SpeechRecognition) {
   alert("Your browser does not support the Web Speech API. Please try Chrome or Edge.");
@@ -96,18 +100,15 @@ if (!window.SpeechRecognition) {
         interimTranscript += transcript;
       }
     }
-    // Update the input field with the combined transcript
     document.getElementById('user-input').value = finalTranscript + interimTranscript;
   });
 
   recognition.addEventListener('end', () => {
     console.log("Speech recognition ended");
-    // Re-enable voice buttons when recognition stops
     document.getElementById('start-voice').disabled = false;
     document.getElementById('stop-voice').disabled = true;
   });
 
-  // Start voice recognition when the "Start Voice" button is clicked
   document.getElementById('start-voice').addEventListener('click', () => {
     console.log("Start Voice button clicked");
     finalTranscript = ''; // Reset transcript
@@ -117,7 +118,6 @@ if (!window.SpeechRecognition) {
     document.getElementById('stop-voice').disabled = false;
   });
 
-  // Stop voice recognition when the "Stop Voice" button is clicked
   document.getElementById('stop-voice').addEventListener('click', () => {
     console.log("Stop Voice button clicked");
     recognition.stop();
