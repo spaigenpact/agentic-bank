@@ -1,3 +1,46 @@
+/**** app.js ****/
+
+// 1) Unlock audio for iOS Safari on first touch
+function unlockAudioForiOS() {
+  // Create an empty utterance
+  const emptyUtterance = new SpeechSynthesisUtterance('');
+  // Speak it, producing no sound but unlocking audio
+  speechSynthesis.speak(emptyUtterance);
+  // Remove this event listener after we've done it once
+  window.removeEventListener('touchstart', unlockAudioForiOS);
+}
+
+// Add the listener to the first 'touchstart' event
+window.addEventListener('touchstart', unlockAudioForiOS, { once: true });
+
+// 2) Continue with your existing code
+// (speakText, sendMessageToChatGPT, event listeners, etc.)
+// ----------------------------------------------------------------
+
+function speakText(text) {
+  console.log("speakText called with:", text);
+  if (!text || text.trim() === "") {
+    console.warn("No text provided to speak.");
+    return;
+  }
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US'; // Adjust if needed
+    utterance.onstart = () => console.log("Speech started.");
+    utterance.onend = () => console.log("Speech ended.");
+    speechSynthesis.speak(utterance);
+  } else {
+    console.warn('Speech synthesis is not supported in this browser.');
+  }
+}
+
+// ... rest of your app.js code (voice recognition, sendMessageToChatGPT, etc.)
+
+
+
+
+
+
 // Function to display a message in the chat log
 function displayMessage(sender, text) {
   const chatLog = document.getElementById('chat-log');
