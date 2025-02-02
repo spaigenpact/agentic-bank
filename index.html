@@ -3,27 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Banking Customer Service Voicebot</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Banking Chatbot</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <h1>Banking Customer Service Voicebot</h1>
-    
-    <div id="transcript">
-      <h2>Transcript</h2>
-      <p id="text">Your speech will appear here...</p>
-    </div>
-    
-    <div id="next-action">
-      <h2>Agent Next Best Action</h2>
-      <p id="action">Suggested action will appear here...</p>
-    </div>
-    
-    <div class="controls">
-      <button id="start-btn">Start Listening</button>
-      <button id="stop-btn" disabled>Stop Listening</button>
-    </div>
+    <h1>Banking Chatbot</h1>
+    <!-- Chat log where messages appear -->
+    <div id="chat-log"></div>
+    <!-- Input field and send button for user messages -->
+    <input type="text" id="user-input" placeholder="Type your message here..." />
+    <button id="send-btn">Send</button>
   </div>
   
   <script src="app.js"></script>
