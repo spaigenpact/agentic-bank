@@ -32,18 +32,32 @@ h1 {
 }
 
 /* Input and button styling */
-#user-input, button {
+#user-input,
+button {
   width: 100%;
   padding: 10px;
   font-size: 1rem;
   margin: 5px 0;
 }
 
-/* Button specific styling */
+/* General button styling */
 button {
   cursor: pointer;
-  background: #007BFF;
   color: white;
   border: none;
   border-radius: 4px;
+}
+
+/* Specific styling for the send button */
+#send-btn {
+  background: #007bff;
+}
+
+/* Styling for voice control buttons */
+#start-voice {
+  background: #28a745;
+}
+
+#stop-voice {
+  background: #dc3545;
 }
