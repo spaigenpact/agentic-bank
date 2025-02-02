@@ -19,7 +19,12 @@ async function sendMessageToChatGPT(userMessage) {
       body: JSON.stringify({ message: userMessage })
     });
 
+    // Log the raw response for debugging
+    console.log('Response status:', response.status);
+
     const data = await response.json();
+    console.log('Response data:', data);
+
     // Extract the assistant's reply from the API response
     const reply =
       data.choices &&
@@ -28,7 +33,7 @@ async function sendMessageToChatGPT(userMessage) {
       data.choices[0].message.content;
     return reply || "No reply received.";
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error processing request:', error);
     return "Error processing your request.";
   }
 }
@@ -59,7 +64,9 @@ if (!window.SpeechRecognition) {
 
   let finalTranscript = '';
 
+  // Event listener for speech recognition results
   recognition.addEventListener('result', event => {
+    console.log('Speech recognition result event fired');
     let interimTranscript = '';
     for (let i = event.resultIndex; i < event.results.length; i++) {
       const transcript = event.results[i][0].transcript;
@@ -73,7 +80,9 @@ if (!window.SpeechRecognition) {
     document.getElementById('user-input').value = finalTranscript + interimTranscript;
   });
 
+  // Event listener when speech recognition ends
   recognition.addEventListener('end', () => {
+    console.log('Speech recognition ended');
     // Re-enable voice buttons when recognition stops
     document.getElementById('start-voice').disabled = false;
     document.getElementById('stop-voice').disabled = true;
@@ -81,6 +90,7 @@ if (!window.SpeechRecognition) {
 
   // Start voice recognition when the Start Voice button is clicked
   document.getElementById('start-voice').addEventListener('click', () => {
+    console.log('Start Voice button clicked');
     finalTranscript = ''; // Reset the transcript
     document.getElementById('user-input').value = '';
     recognition.start();
@@ -90,6 +100,7 @@ if (!window.SpeechRecognition) {
 
   // Stop voice recognition when the Stop Voice button is clicked
   document.getElementById('stop-voice').addEventListener('click', () => {
+    console.log('Stop Voice button clicked');
     recognition.stop();
     document.getElementById('start-voice').disabled = false;
     document.getElementById('stop-voice').disabled = true;
