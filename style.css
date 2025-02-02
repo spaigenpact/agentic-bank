@@ -1,4 +1,4 @@
-/* Base styles for readability */
+/* Basic reset and body styling */
 body {
   font-family: Arial, sans-serif;
   background: #f2f2f2;
@@ -6,47 +6,44 @@ body {
   padding: 20px;
 }
 
-/* Container to center content and add padding */
+/* Container styling for centering and aesthetics */
 .container {
   max-width: 600px;
-  width: 90%; /* Ensures it looks good on mobile devices */
-  margin: 0 auto;
+  margin: auto;
   background: #fff;
-  border-radius: 8px;
   padding: 20px;
+  border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Headings centered for both desktop and mobile */
-h1, h2 {
+/* Heading styling */
+h1 {
   text-align: center;
 }
 
-/* Styling for transcript and action panels */
-#transcript, #next-action {
-  margin-bottom: 20px;
+/* Chat log container styling */
+#chat-log {
+  height: 300px;
+  overflow-y: auto;
   border: 1px solid #ddd;
-  padding: 15px;
-  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 10px;
   background: #fafafa;
 }
 
-/* Controls centered and button styling */
-.controls {
-  text-align: center;
-}
-
-button {
-  padding: 10px 20px;
-  margin: 5px;
+/* Input and button styling */
+#user-input, button {
+  width: 100%;
+  padding: 10px;
   font-size: 1rem;
-  cursor: pointer;
+  margin: 5px 0;
 }
 
-/* Responsive adjustments for smaller devices */
-@media (max-width: 480px) {
-  button {
-    width: 100%;
-    box-sizing: border-box;
-  }
+/* Button specific styling */
+button {
+  cursor: pointer;
+  background: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 4px;
 }
