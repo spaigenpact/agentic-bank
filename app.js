@@ -8,6 +8,17 @@ function displayMessage(sender, text) {
   chatLog.scrollTop = chatLog.scrollHeight;
 }
 
+// Function to speak a given text using SpeechSynthesis
+function speakText(text) {
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US'; // Adjust language as needed
+    window.speechSynthesis.speak(utterance);
+  } else {
+    console.warn('Speech synthesis is not supported in this browser.');
+  }
+}
+
 // Function to send the user's message to your serverless ChatGPT endpoint
 async function sendMessageToChatGPT(userMessage) {
   try {
@@ -20,7 +31,6 @@ async function sendMessageToChatGPT(userMessage) {
     // Log the raw response status for debugging
     console.log('Response status:', response.status);
 
-    // If the response is not OK, log and throw an error to trigger the catch block
     if (!response.ok) {
       const errorData = await response.json();
       console.error('Error data from server:', errorData);
@@ -54,11 +64,13 @@ document.getElementById('send-btn').addEventListener('click', async () => {
 
   const reply = await sendMessageToChatGPT(userMessage);
   displayMessage('Assistant', reply);
+  // Speak the assistant's reply
+  speakText(reply);
 });
 
 // ----------------- Voice Recognition Functionality -----------------
 
-// Check if the browser supports the Web Speech API
+// Check if the browser supports the Web Speech API for speech recognition
 window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (!window.SpeechRecognition) {
   alert("Your browser does not support the Web Speech API. Please try Chrome or Edge.");
@@ -90,10 +102,12 @@ if (!window.SpeechRecognition) {
 
   recognition.addEventListener('end', () => {
     console.log("Speech recognition ended");
+    // Re-enable voice buttons when recognition stops
     document.getElementById('start-voice').disabled = false;
     document.getElementById('stop-voice').disabled = true;
   });
 
+  // Start voice recognition when the "Start Voice" button is clicked
   document.getElementById('start-voice').addEventListener('click', () => {
     console.log("Start Voice button clicked");
     finalTranscript = ''; // Reset transcript
@@ -103,6 +117,7 @@ if (!window.SpeechRecognition) {
     document.getElementById('stop-voice').disabled = false;
   });
 
+  // Stop voice recognition when the "Stop Voice" button is clicked
   document.getElementById('stop-voice').addEventListener('click', () => {
     console.log("Stop Voice button clicked");
     recognition.stop();
