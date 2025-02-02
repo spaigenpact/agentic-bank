@@ -128,3 +128,12 @@ if (!window.SpeechRecognition) {
 
 // Attach speakText to the global window object for console testing
 window.speakText = speakText;
+// This code "unlocks" audio on iOS by playing an empty utterance on the first user interaction
+function unlockAudioForiOS() {
+  const emptyUtterance = new SpeechSynthesisUtterance('');
+  speechSynthesis.speak(emptyUtterance);
+  window.removeEventListener('touchstart', unlockAudioForiOS);
+}
+
+// Only add this unlock once, on the first 'touchstart'
+window.addEventListener('touchstart', unlockAudioForiOS, { once: true });
