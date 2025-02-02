@@ -1,4 +1,6 @@
-// Function to display a message in the chat log
+// ----------------- Text Chat Functionality -----------------
+
+// Function to display messages in the chat log
 function displayMessage(sender, text) {
   const chatLog = document.getElementById('chat-log');
   const messageEl = document.createElement('p');
@@ -8,29 +10,18 @@ function displayMessage(sender, text) {
   chatLog.scrollTop = chatLog.scrollHeight;
 }
 
-// Function to send the user's message to your serverless ChatGPT endpoint
+// Function to send a message to your ChatGPT endpoint
 async function sendMessageToChatGPT(userMessage) {
   try {
     const response = await fetch('https://agentic-bank.vercel.app/api/chat', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: userMessage })
     });
-
-    // Log the raw response for debugging
     console.log('Response status:', response.status);
-
     const data = await response.json();
     console.log('Response data:', data);
-
-    // Extract the assistant's reply from the API response
-    const reply =
-      data.choices &&
-      data.choices[0] &&
-      data.choices[0].message &&
-      data.choices[0].message.content;
+    const reply = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
     return reply || "No reply received.";
   } catch (error) {
     console.error('Error processing request:', error);
@@ -51,20 +42,26 @@ document.getElementById('send-btn').addEventListener('click', async () => {
   displayMessage('Assistant', reply);
 });
 
-// ----------------- Voice Recognition Code -----------------
+// ----------------- Voice Recognition Functionality -----------------
 
-// Check for Web Speech API support
+// Check if the browser supports the Web Speech API
 window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (!window.SpeechRecognition) {
   alert("Your browser does not support the Web Speech API. Please try Chrome or Edge.");
 } else {
+  // Create a new SpeechRecognition instance
   const recognition = new window.SpeechRecognition();
   recognition.interimResults = true;
   recognition.lang = 'en-US';
-
+  
   let finalTranscript = '';
 
-  // Event listener for speech recognition results
+  // Log when speech recognition starts
+  recognition.addEventListener('start', () => {
+    console.log("Speech recognition started");
+  });
+
+  // Log and process speech recognition results
   recognition.addEventListener('result', event => {
     console.log('Speech recognition result event fired');
     let interimTranscript = '';
@@ -80,17 +77,17 @@ if (!window.SpeechRecognition) {
     document.getElementById('user-input').value = finalTranscript + interimTranscript;
   });
 
-  // Event listener when speech recognition ends
+  // Log when speech recognition ends
   recognition.addEventListener('end', () => {
-    console.log('Speech recognition ended');
-    // Re-enable voice buttons when recognition stops
+    console.log("Speech recognition ended");
+    // Re-enable buttons after recognition stops
     document.getElementById('start-voice').disabled = false;
     document.getElementById('stop-voice').disabled = true;
   });
 
-  // Start voice recognition when the Start Voice button is clicked
+  // Start voice recognition when the "Start Voice" button is clicked
   document.getElementById('start-voice').addEventListener('click', () => {
-    console.log('Start Voice button clicked');
+    console.log("Start Voice button clicked");
     finalTranscript = ''; // Reset the transcript
     document.getElementById('user-input').value = '';
     recognition.start();
@@ -98,9 +95,9 @@ if (!window.SpeechRecognition) {
     document.getElementById('stop-voice').disabled = false;
   });
 
-  // Stop voice recognition when the Stop Voice button is clicked
+  // Stop voice recognition when the "Stop Voice" button is clicked
   document.getElementById('stop-voice').addEventListener('click', () => {
-    console.log('Stop Voice button clicked');
+    console.log("Stop Voice button clicked");
     recognition.stop();
     document.getElementById('start-voice').disabled = false;
     document.getElementById('stop-voice').disabled = true;
