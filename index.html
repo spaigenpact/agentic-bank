@@ -1,28 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Banking Chatbot</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>iOS TTS Test</title>
 </head>
 <body>
-  <div class="container">
-    <h1>Banking Chatbot</h1>
-    <!-- Chat log where messages appear -->
-    <div id="chat-log"></div>
-    <!-- Text input for user messages -->
-    <input
-      type="text"
-      id="user-input"
-      placeholder="Type your message here or use voice input..."
-    />
-    <!-- Buttons for sending text and controlling voice input -->
-    <button id="send-btn">Send</button>
-    <button id="start-voice">Start Voice</button>
-    <button id="stop-voice" disabled>Stop Voice</button>
-  </div>
+  <h1>iOS Text-to-Speech Test</h1>
+  <p>This page tests speech synthesis on iOS Safari. Tap the screen (to unlock audio), then tap <strong>Speak</strong>.</p>
+  
+  <!-- Button the user will tap to hear speech -->
+  <button id="speak-btn">Speak</button>
+  
+  <script>
+    /**
+     * 1) Unlock audio for iOS Safari on the first touch
+     *    iOS often blocks audio (including speech synthesis) until
+     *    there's a direct user gesture. This code plays an empty
+     *    utterance to "unlock" audio for future speak() calls.
+     */
+    function unlockAudioForiOS() {
+      const emptyUtterance = new SpeechSynthesisUtterance('');
+      speechSynthesis.speak(emptyUtterance);
+      window.removeEventListener('touchstart', unlockAudioForiOS);
+    }
+    window.addEventListener('touchstart', unlockAudioForiOS, { once: true });
 
-  <script src="app.js"></script>
+    /**
+     * 2) Minimal speech synthesis on button click
+     *    Tapping Speak should now produce audible output
+     *    if the device isn't in silent mode and media volume is up.
+     */
+    document.getElementById('speak-btn').addEventListener('click', () => {
+      const utterance = new SpeechSynthesisUtterance("Hello from a minimal test!");
+      utterance.lang = 'en-US';
+      utterance.onstart = () => console.log("Speech started");
+      utterance.onend = () => console.log("Speech ended");
+      
+      speechSynthesis.speak(utterance);
+    });
+  </script>
 </body>
 </html>
