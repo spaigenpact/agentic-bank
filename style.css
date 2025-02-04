@@ -40,7 +40,7 @@ button {
   margin: 5px 0;
 }
 
-/* General button styling */
+/* Buttons general style */
 button {
   cursor: pointer;
   color: white;
@@ -48,16 +48,7 @@ button {
   border-radius: 4px;
 }
 
-/* Specific styling for the send button */
-#send-btn {
-  background: #007bff;
-}
-
-/* Styling for voice control buttons */
-#start-voice {
-  background: #28a745;
-}
-
-#stop-voice {
-  background: #dc3545;
+/* Stop Reading button style */
+#stop-reading {
+  background: #dc3545; /* red-ish */
 }
