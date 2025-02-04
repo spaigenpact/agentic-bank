@@ -1,47 +1,6 @@
-/**** app.js ****/
+// ---------- Chat Display and TTS Management ---------- //
 
-// 1) Unlock audio for iOS Safari on first touch
-function unlockAudioForiOS() {
-  // Create an empty utterance
-  const emptyUtterance = new SpeechSynthesisUtterance('');
-  // Speak it, producing no sound but unlocking audio
-  speechSynthesis.speak(emptyUtterance);
-  // Remove this event listener after we've done it once
-  window.removeEventListener('touchstart', unlockAudioForiOS);
-}
-
-// Add the listener to the first 'touchstart' event
-window.addEventListener('touchstart', unlockAudioForiOS, { once: true });
-
-// 2) Continue with your existing code
-// (speakText, sendMessageToChatGPT, event listeners, etc.)
-// ----------------------------------------------------------------
-
-function speakText(text) {
-  console.log("speakText called with:", text);
-  if (!text || text.trim() === "") {
-    console.warn("No text provided to speak.");
-    return;
-  }
-  if ('speechSynthesis' in window) {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US'; // Adjust if needed
-    utterance.onstart = () => console.log("Speech started.");
-    utterance.onend = () => console.log("Speech ended.");
-    speechSynthesis.speak(utterance);
-  } else {
-    console.warn('Speech synthesis is not supported in this browser.');
-  }
-}
-
-// ... rest of your app.js code (voice recognition, sendMessageToChatGPT, etc.)
-
-
-
-
-
-
-// Function to display a message in the chat log
+// Display messages in the chat log
 function displayMessage(sender, text) {
   const chatLog = document.getElementById('chat-log');
   const messageEl = document.createElement('p');
@@ -51,25 +10,34 @@ function displayMessage(sender, text) {
   chatLog.scrollTop = chatLog.scrollHeight;
 }
 
-// Function to speak a given text using SpeechSynthesis
+// Speak text out loud (TTS)
 function speakText(text) {
-  console.log("speakText called with:", text);
-  if (!text || text.trim() === "") {
-    console.warn("No text provided to speak.");
-    return;
-  }
+  if (!text || text.trim() === "") return;
   if ('speechSynthesis' in window) {
+    // Cancel any ongoing speech before starting new
+    window.speechSynthesis.cancel();
+
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'en-US'; // Adjust language as needed
     utterance.onstart = () => console.log("Speech started.");
     utterance.onend = () => console.log("Speech ended.");
     window.speechSynthesis.speak(utterance);
   } else {
-    console.warn('Speech synthesis is not supported in this browser.');
+    console.warn('Speech synthesis not supported in this browser.');
   }
 }
 
-// Function to send the user's message to your serverless ChatGPT endpoint
+// Stop reading (interrupt TTS)
+function stopReading() {
+  console.log("Stop reading clicked.");
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
+}
+
+// ---------- ChatGPT Interaction ---------- //
+
+// Send user message to your serverless ChatGPT endpoint
 async function sendMessageToChatGPT(userMessage) {
   try {
     const response = await fetch('https://agentic-bank.vercel.app/api/chat', {
@@ -78,11 +46,9 @@ async function sendMessageToChatGPT(userMessage) {
       body: JSON.stringify({ message: userMessage })
     });
 
-    console.log('Response status:', response.status);
-
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('Error data from server:', errorData);
+      console.error('Error from server:', errorData);
       throw new Error('Server returned an error');
     }
 
@@ -94,89 +60,72 @@ async function sendMessageToChatGPT(userMessage) {
       data.choices[0] &&
       data.choices[0].message &&
       data.choices[0].message.content;
+
     return reply || "No reply received.";
   } catch (error) {
-    console.error('Error processing request:', error);
+    console.error('Error sending message:', error);
     return "Error processing your request.";
   }
 }
 
-// Event listener for the Send button (text-based)
-document.getElementById('send-btn').addEventListener('click', async () => {
-  const inputField = document.getElementById('user-input');
-  const userMessage = inputField.value.trim();
-  if (!userMessage) return; // Do nothing if the input is empty
-
+// Process final recognized speech or typed message
+async function handleUserMessage(userMessage) {
+  if (!userMessage.trim()) return; // ignore empty
   displayMessage('User', userMessage);
-  inputField.value = '';
 
   const reply = await sendMessageToChatGPT(userMessage);
   displayMessage('Assistant', reply);
   speakText(reply);
+}
+
+// ---------- Text Input: Press Enter to Send ---------- //
+
+const userInput = document.getElementById('user-input');
+userInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    handleUserMessage(userInput.value);
+    userInput.value = '';
+  }
 });
 
-// ----------------- Voice Recognition Functionality -----------------
+// ---------- Continuous Speech Recognition ---------- //
 
-// Check if the browser supports the Web Speech API
 window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (!window.SpeechRecognition) {
-  alert("Your browser does not support the Web Speech API. Please try Chrome or Edge.");
+  console.warn("This browser does not support speech recognition. Text input only.");
 } else {
   const recognition = new window.SpeechRecognition();
-  recognition.interimResults = true;
+  recognition.continuous = true;       // keep listening
+  recognition.interimResults = true;   // show partial transcripts
   recognition.lang = 'en-US';
-  
+
   let finalTranscript = '';
 
-  recognition.addEventListener('start', () => {
-    console.log("Speech recognition started");
-  });
-
-  recognition.addEventListener('result', event => {
-    console.log('Speech recognition result event fired');
+  recognition.addEventListener('result', (event) => {
     let interimTranscript = '';
     for (let i = event.resultIndex; i < event.results.length; i++) {
       const transcript = event.results[i][0].transcript;
       if (event.results[i].isFinal) {
-        finalTranscript += transcript + " ";
+        finalTranscript += transcript + ' ';
+        // Send message automatically when final
+        handleUserMessage(finalTranscript);
+        finalTranscript = '';
       } else {
         interimTranscript += transcript;
       }
     }
-    document.getElementById('user-input').value = finalTranscript + interimTranscript;
+    // Optionally display the ongoing transcript in the input field
+    userInput.value = finalTranscript + interimTranscript;
   });
 
   recognition.addEventListener('end', () => {
-    console.log("Speech recognition ended");
-    document.getElementById('start-voice').disabled = false;
-    document.getElementById('stop-voice').disabled = true;
-  });
-
-  document.getElementById('start-voice').addEventListener('click', () => {
-    console.log("Start Voice button clicked");
-    finalTranscript = ''; // Reset transcript
-    document.getElementById('user-input').value = '';
+    // Auto-restart to maintain continuous listening
     recognition.start();
-    document.getElementById('start-voice').disabled = true;
-    document.getElementById('stop-voice').disabled = false;
   });
 
-  document.getElementById('stop-voice').addEventListener('click', () => {
-    console.log("Stop Voice button clicked");
-    recognition.stop();
-    document.getElementById('start-voice').disabled = false;
-    document.getElementById('stop-voice').disabled = true;
-  });
+  // Start continuous recognition immediately
+  recognition.start();
 }
 
-// Attach speakText to the global window object for console testing
-window.speakText = speakText;
-// This code "unlocks" audio on iOS by playing an empty utterance on the first user interaction
-function unlockAudioForiOS() {
-  const emptyUtterance = new SpeechSynthesisUtterance('');
-  speechSynthesis.speak(emptyUtterance);
-  window.removeEventListener('touchstart', unlockAudioForiOS);
-}
-
-// Only add this unlock once, on the first 'touchstart'
-window.addEventListener('touchstart', unlockAudioForiOS, { once: true });
+// ---------- Stop Reading Button ---------- //
+document.getElementById('stop-reading').addEventListener('click', stopReading);
